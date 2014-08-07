@@ -1,8 +1,9 @@
 import java.io.{FileOutputStream, File, FileInputStream}
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.ss.usermodel.{Sheet, Cell}
 import scala.annotation.tailrec
-import org.apache.poi.ss.usermodel.Cell
+
+
 
 
 class CSIExcel(val filePath: String) {
@@ -12,12 +13,12 @@ class CSIExcel(val filePath: String) {
   private val wb = new XSSFWorkbook(fileIS)
   private val sheet0 = wb.getSheetAt(0)
   private val sheetList : List[Sheet] = createSheetList
-  private val lmadList: Set[String] = createLmadList
+  private val lmadList: Set[Integer] = createLmadList
 
   def process = {
 
-    innerprocess(sheetList)
-    wb.write(new FileOutputStream(new File(filePath)))
+    innerprocess(sheetList) //process file.
+    wb.write(new FileOutputStream(new File(filePath))) //write file.
 
     @tailrec
     def innerprocess(l: List[Sheet]): Boolean = {
@@ -25,7 +26,7 @@ class CSIExcel(val filePath: String) {
         true
       else {
         /*Do sheet processing*/
-        insertAlumniGrades(l.head, 10, 5)
+
 
         /*recursive call*/
         innerprocess(l.tail)
@@ -35,8 +36,8 @@ class CSIExcel(val filePath: String) {
 
 
 
-  private def isLMAD(alumno: String): Boolean = containsName(alumno)
-  private def containsName(alumno: String): Boolean = lmadList.contains(alumno)
+  /*Alumno es lmad*/
+  private def isLMAD(alumno: Integer): Boolean = lmadList.contains(alumno)
 
   /*Crea nuestra lista de hojas para procesar*/
   private def createSheetList: List[Sheet] = {
@@ -48,9 +49,14 @@ class CSIExcel(val filePath: String) {
     retval
   }
 
-  /*Set de matriculas de la pagina 1*/
-  private def createLmadList: Set[String] = {
-    var retval: Set[String] = Set()
+  /*Construye set de matriculas de lmad*/
+  private def createLmadList: Set[Integer] = {
+    var retval: Set[Integer] = Set()
+    for( i <- sheet0.getFirstRowNum+1 to sheet0.getLastRowNum) {
+      val row = sheet0.getRow(i)
+      val cell = row.getCell(1)
+      retval += cell.getNumericCellValue.toInt
+    }
     retval
   }
 
@@ -59,12 +65,8 @@ class CSIExcel(val filePath: String) {
     val aprobadosS = "# Alumnos Aprobados: " + aprobados.toString
     val noAprobadosS = "# Alumnos NO Aprobados: " + noAprobados.toString
 
-    /*
-     * Escribir en la sheet especificada row 1 y 2, columna D
-     */
     sheet.getRow(0).createCell(3).setCellValue(aprobadosS)
     sheet.getRow(1).createCell(3).setCellValue(noAprobadosS)
-
   }
 
 }
