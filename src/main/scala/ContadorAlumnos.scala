@@ -1,7 +1,7 @@
 import scala.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-object contadorAlumnos extends Application {
+object contadorAlumnos extends App {
 
   val frm = new FileChooser
   frm.fileFilter = new FileNameExtensionFilter("Archivo Excel", "xlsx")
@@ -12,13 +12,13 @@ object contadorAlumnos extends Application {
   try
     filePath = frm.selectedFile.getPath.replace("\\", "\\\\")
   catch {
-    case npe: NullPointerException => exit // esperado al presionar cancelar.
+    case npe: NullPointerException => sys.exit // esperado al presionar cancelar.
     case e: Exception => e.printStackTrace //no esperado, imprime exception.
   }
 
   if (!filePath.endsWith("xlsx")) {
     Dialog.showMessage(null, "Archivo no valido.", "Error", Dialog.Message.Error)
-    exit
+    sys.exit
   }
 
   val csiExcel = new CSIExcel(filePath)

@@ -1,5 +1,4 @@
-import java.io.File
-import java.io.FileInputStream
+import java.io.{FileOutputStream, File, FileInputStream}
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.ss.usermodel.Sheet
 import scala.annotation.tailrec
@@ -18,7 +17,7 @@ class CSIExcel(val filePath: String) {
   def process = {
 
     innerprocess(sheetList)
-
+    wb.write(new FileOutputStream(new File(filePath)))
 
     @tailrec
     def innerprocess(l: List[Sheet]): Boolean = {
@@ -26,9 +25,7 @@ class CSIExcel(val filePath: String) {
         true
       else {
         /*Do sheet processing*/
-        val aprobados = 4
-        val noAprobados = 10
-        insertAlumniGrades(l.head, aprobados, noAprobados)
+        insertAlumniGrades(l.head, 10, 5)
 
         /*recursive call*/
         innerprocess(l.tail)
