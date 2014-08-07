@@ -1,6 +1,8 @@
 import scala.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
+
+//hola
 object contadorAlumnos extends App {
 
   val frm = new FileChooser
