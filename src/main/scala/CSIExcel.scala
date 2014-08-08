@@ -1,7 +1,6 @@
 import java.io.{FileOutputStream, File, FileInputStream}
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import org.apache.poi.ss.usermodel.{Row, Sheet, Cell}
-import scala.annotation.tailrec
+import org.apache.poi.ss.usermodel.{Sheet, Cell}
 
 
 class CSIExcel(val filePath: String) {
@@ -11,78 +10,39 @@ class CSIExcel(val filePath: String) {
   private val sheet0 = wb.getSheetAt(0)
   private val sheetList: List[Sheet] = createSheetList
   private val lmadList: Set[Integer] = createLmadList
-  private val util : Utilerias = new Utilerias
-  private var alumnosList: List[Alumno] = List()
 
 
   def process = {
-
-    innerprocess(sheetList) //process file.
+    sheetList.map((x) => processSheet(x))
     wb.write(new FileOutputStream(new File(filePath))) //write file.
-
-
   }
 
+  private def processSheet(sheet: Sheet) = {
 
-  @tailrec
-  private def innerprocess(l: List[Sheet]): Boolean = {
-    if (l.isEmpty) /*break condition*/
-      true
-    else {
-      /*Do sheet processing*/
-      var sheet:Sheet = l.head
-      processSheet(sheet, sheet.getFirstRowNum)
-      /*recursive call*/
-      innerprocess(l.tail)
-    }
+    //absolute value function.
+    def abs(x:Int): Int = if (x < 0) x * -1 else x
+
+    val alumnos = createAlumnoList(sheet)
+    val lmadAlumnos = alumnos.filter((x) => lmadList.contains(x.matricula))
+
+    val aprobados = lmadAlumnos.filter(_.aprobo).size //filtra los aprobados, regresa el tamaño.
+    val reprobados = abs(lmadAlumnos.size - aprobados) //tamaño real menos aprobados.
+
+    insertAlumniGrades(sheet, aprobados, reprobados)
   }
 
+  private def createAlumnoList(sheet: Sheet): List[Alumno] = {
+    var retval: List[Alumno] = List()
+    var iterator = iterateAlumno(sheet, 0)
 
-  private def processSheet(sheet:Sheet, rowIndex: Integer) {
+    retval = iterator.alumno :: retval
 
-    if ((rowIndex <= sheet.getLastRowNum)){
-
-
-      var currentMatricula: String = ""
-      val currentCell: Cell = sheet.getRow(rowIndex).getCell(0)
-      val currentCalificacionCell: Cell = sheet.getRow(rowIndex).getCell(5)
-
-      if (currentCell.getCellType == Cell.CELL_TYPE_STRING) {
-        currentMatricula = extractMatricula(currentCell.getStringCellValue)
-        println(currentMatricula)
-        processSheet(sheet, rowIndex + 1)
-      } else if (currentCell.getCellType == Cell.CELL_TYPE_NUMERIC) {
-        println(currentCell.getNumericCellValue)
-        processSheet(sheet, rowIndex + 1)
-      }
+    while (iterator.nextRowIndex < sheet.getLastRowNum) {
+      iterator = iterateAlumno(sheet, iterator.nextRowIndex)
+      retval = iterator.alumno :: retval
     }
+    retval
   }
-
-
-
-
-
-
-  /*private def processSheet(sheet: Sheet) = {
-    var rowIndex=0
-    var jump=0
-    var currentMatricula:String = ""
-    var currentCell = sheet.getRow(rowIndex).getCell(0)
-
-    if(currentCell.getCellType == Cell.CELL_TYPE_STRING ) {
-      currentMatricula = extractMatricula(currentCell.getStringCellValue)
-      rowIndex += 2
-
-      if (sheet.getRow(rowIndex).getCell(0).getCellType == Cell.CELL_TYPE_NUMERIC) {
-          val foo = sheet.getRow(rowIndex).getCell(5).getStringCellValue
-
-      }
-
-    } else {
-
-    }
-      rowIndex += jump
-  }*/
 
   /*Alumno es lmad*/
   private def isLMAD(alumno: Integer): Boolean = lmadList.contains(alumno)
@@ -117,22 +77,37 @@ class CSIExcel(val filePath: String) {
     sheet.getRow(1).createCell(3).setCellValue(noAprobadosS)
   }
 
-  private def extractMatricula(str: String): String = str.toCharArray.toList.takeWhile((c) => c != ' ').mkString.toString
+  private def extractMatricula(str: String): Integer = str.toCharArray.toList.takeWhile((c) => c != ' ').mkString.toInt
 
-  private def iterateAlumno(sheet: Sheet, rowNum: Integer): myTupla = {
-    var rowNum = 0
+  private def iterateAlumno(sheet: Sheet, rowNum: Integer): alumnoNextRow = {
+    var rowReturn = rowNum
 
-    val retval = new Object with myTupla
+    val retval = new Object with alumnoNextRow
+
     retval.alumno = new Alumno
-    retval.nextRowIndex = 10
+    retval.alumno.matricula = extractMatricula(sheet.getRow(rowNum).getCell(0).getStringCellValue)
 
+    /*2 jumps*/
+    rowReturn += 3
 
+    var row = sheet.getRow(rowReturn)
+    while ( row != null && row.getCell(1) != null && row.getCell(0).getCellType != Cell.CELL_TYPE_BLANK) {
+
+      /*If we have data read it*/
+      if (row.getCell(5) != null) {
+        val cell = row.getCell(5)
+        if (cell.getCellType == Cell.CELL_TYPE_NUMERIC)
+          retval.alumno.listaMateria = cell.getNumericCellValue.toInt :: retval.alumno.listaMateria
+        else
+          retval.alumno.listaMateria = 0 :: retval.alumno.listaMateria
+      }
+
+      /*increment the while loop*/
+      rowReturn += 1
+      row = sheet.getRow(rowReturn)
+    }
+    retval.nextRowIndex = rowReturn
     retval
-  }
-
-  trait myTupla {
-    var alumno: Alumno = null
-    var nextRowIndex: Integer = 0
   }
 
 
