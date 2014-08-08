@@ -23,9 +23,19 @@ object contadorAlumnos extends App {
     sys.exit
   }
 
-  val csiExcel = new CSIExcel(filePath)
-  csiExcel.process
+  try{
+    val csiExcel = new CSIExcel(filePath)
+    csiExcel.process
+    Dialog.showMessage(null, "Procesamiento Terminado.", "Fin", Dialog.Message.Info)
+  }catch {
+    case e: Exception=>  Dialog.showMessage(null, e, "Error", Dialog.Message.Error)
+            println(e.printStackTrace())
+  }finally {
 
-  Dialog.showMessage(null, "Procesamiento Terminado.", "Fin", Dialog.Message.Info)
+
+  }
+
+
+
 
 }

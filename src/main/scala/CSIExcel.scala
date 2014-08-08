@@ -1,23 +1,27 @@
-import java.io.{FileOutputStream, File, FileInputStream}
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.{FileWriter, FileOutputStream, File, FileInputStream}
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import org.apache.poi.ss.usermodel.{Sheet, Cell}
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 
 class CSIExcel(val filePath: String) {
 
   private val fileIS = new FileInputStream(new File(filePath))
   private val wb = new XSSFWorkbook(fileIS)
+  private val swb = new SXSSFWorkbook(wb, 100)
   private val sheet0 = wb.getSheetAt(0)
   private val sheetList: List[Sheet] = createSheetList
   private val lmadList: Set[Integer] = createLmadList
 
 
-  def process = {
-    sheetList.map((x) => processSheet(x))
-    wb.write(new FileOutputStream(new File(filePath))) //write file.
-  }
+  def process = sheetList.map(processSheet(_, filePath + "_RESULTADOS.txt"))
 
-  private def processSheet(sheet: Sheet) = {
+  private def processSheet(sheet: Sheet, path: String) = {
+
+    /*garbanzo collecziones*/
+    Runtime.getRuntime.gc
+    println("GARBANZO:\t" + Runtime.getRuntime.freeMemory / 10000)
+
 
     //absolute value function.
     def abs(x:Int): Int = if (x < 0) x * -1 else x
@@ -28,7 +32,18 @@ class CSIExcel(val filePath: String) {
     val aprobados = lmadAlumnos.filter(_.aprobo).size //filtra los aprobados, regresa el tamaño.
     val reprobados = abs(lmadAlumnos.size - aprobados) //tamaño real menos aprobados.
 
-    insertAlumniGrades(sheet, aprobados, reprobados)
+    insertarArchivoResultados(sheet.getSheetName, aprobados, reprobados, path)
+  }
+
+
+  private def insertarArchivoResultados(name: String, aprobados: Int, reprobados: Int, path: String) = {
+    val fw : FileWriter = new FileWriter(path, true)
+    val formattedText = "\r\n\r\n-----------------------------------------------------------\r\n" +
+                          name + "\r\n" +
+                          "Aprobados: " + aprobados + "\r\n" +
+                          "No Aprobados: " + reprobados
+    fw.write(formattedText)
+    fw.close
   }
 
   private def createAlumnoList(sheet: Sheet): List[Alumno] = {
@@ -51,7 +66,7 @@ class CSIExcel(val filePath: String) {
   private def createSheetList: List[Sheet] = {
     var retval: List[Sheet] = List()
     val sheetNo = wb.getNumberOfSheets
-    for (i <- 1 until sheetNo) {
+    for (i <- sheetNo-1 to 1 by -1) {
       retval = wb.getSheetAt(i) :: retval
     }
     retval
