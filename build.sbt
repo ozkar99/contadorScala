@@ -1,4 +1,12 @@
+import AssemblyKeys._
+
+assemblySettings
+
+jarName in assembly := "ContadorAlumnos.jar"
+
 name := "contadorScala"
+
+scalaVersion := "2.10.4"
 
 version := "1.0"
 
