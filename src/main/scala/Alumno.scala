@@ -1,8 +1,3 @@
-import scala.util.control.Breaks
-
-/**
- * Created by Christian on 07/08/2014.
- */
  class Alumno {
 
  var matricula:Integer = 0
@@ -14,6 +9,7 @@ import scala.util.control.Breaks
 }
 
 
+ /*Simple wrapper with alumno + nextRow, could have used a tuple, meh...*/
 trait alumnoNextRow {
   var alumno: Alumno = null
   var nextRowIndex: Integer = 0

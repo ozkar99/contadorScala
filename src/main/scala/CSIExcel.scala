@@ -17,11 +17,8 @@ class CSIExcel(val filePath: String) {
   def process = sheetList.map(processSheet(_, filePath + "_RESULTADOS.txt"))
 
   private def processSheet(sheet: Sheet, path: String) = {
-
-    /*garbanzo collecziones*/
+    /*garbage collect this nigga*/
     Runtime.getRuntime.gc
-    println("GARBANZO:\t" + Runtime.getRuntime.freeMemory / 10000)
-
 
     //absolute value function.
     def abs(x:Int): Int = if (x < 0) x * -1 else x
@@ -102,7 +99,7 @@ class CSIExcel(val filePath: String) {
     retval.alumno = new Alumno
     retval.alumno.matricula = extractMatricula(sheet.getRow(rowNum).getCell(0).getStringCellValue)
 
-    /*2 jumps*/
+    /*2 jumps from where we are*/
     rowReturn += 3
 
     var row = sheet.getRow(rowReturn)

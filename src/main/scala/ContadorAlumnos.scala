@@ -1,8 +1,6 @@
 import scala.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-
-//hola
 object contadorAlumnos extends App {
 
   val frm = new FileChooser
@@ -28,14 +26,8 @@ object contadorAlumnos extends App {
     csiExcel.process
     Dialog.showMessage(null, "Procesamiento Terminado.", "Fin", Dialog.Message.Info)
   }catch {
-    case e: Exception=>  Dialog.showMessage(null, e, "Error", Dialog.Message.Error)
-            println(e.printStackTrace())
-  }finally {
-
-
+    case e: Exception => Dialog.showMessage(null, e, "Error", Dialog.Message.Error)
+      println(e.printStackTrace())
   }
-
-
-
 
 }
