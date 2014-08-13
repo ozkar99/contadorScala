@@ -8,7 +8,7 @@ name := "contadorScala"
 
 scalaVersion := "2.10.4"
 
-version := "1.0"
+version := "2.0"
 
 libraryDependencies += "org.scala-lang" % "scala-swing" % "2.10+"
 
