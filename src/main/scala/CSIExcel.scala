@@ -20,9 +20,9 @@ class CSIExcel(val filePath: String) {
   private def processSheet(sheet: Sheet, path: String) = {
 
     /*garbanzo colleczione*/
-    print(progress + ": " + Runtime.getRuntime.freeMemory/10000)
+    print(progress + ": " + Runtime.getRuntime.totalMemory.toString)
     Runtime.getRuntime.gc
-    println("\t" + Runtime.getRuntime.freeMemory/10000)
+    println("\t" + Runtime.getRuntime.totalMemory.toString)
 
     //absolute value function.
     def abs(x:Int): Int = if (x < 0) x * -1 else x

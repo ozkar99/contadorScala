@@ -9,15 +9,10 @@ object contadorAlumnos extends App {
 
   var filePath = ""
 
-  try
+  try {
     filePath = frm.selectedFile.getPath.replace("\\", "\\\\")
-  catch {
-    case npe: NullPointerException => sys.exit // esperado al presionar cancelar.
-    case e: Exception => {
-      Dialog.showMessage(null, e.getStackTraceString, "Error", Dialog.Message.Error)
-      sys.exit
-    }
-
+  } catch {
+      case e: Exception => sys.exit // esperado al presionar cancelar.
   }
 
   if (!filePath.endsWith("xlsx")) {
@@ -26,12 +21,15 @@ object contadorAlumnos extends App {
   }
 
   try{
+    println("Memoria Maxima de uso: " + Runtime.getRuntime.maxMemory)
+
     val csiExcel = new CSIExcel(filePath)
+    println("Memoria uso actual: " + Runtime.getRuntime.totalMemory)
+
     csiExcel.process
     Dialog.showMessage(null, "Procesamiento Terminado.", "Fin", Dialog.Message.Info)
   }catch {
-    case e: Exception => Dialog.showMessage(null, e, "Error", Dialog.Message.Error)
-      println(e.printStackTrace())
+     case e: Exception => Dialog.showMessage(null, e.getStackTraceString, "Error", Dialog.Message.Error)
   }
 
 }
