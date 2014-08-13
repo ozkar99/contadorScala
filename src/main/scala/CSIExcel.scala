@@ -1,35 +1,40 @@
-import java.io.{FileWriter, FileOutputStream, File, FileInputStream}
-import org.apache.poi.xssf.streaming.SXSSFWorkbook
+import java.io.{FileWriter, File, FileInputStream}
 import org.apache.poi.ss.usermodel.{Sheet, Cell}
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+
+import scala.collection.mutable.UnrolledBuffer
 
 
 class CSIExcel(val filePath: String) {
 
   private val fileIS = new FileInputStream(new File(filePath))
   private val wb = new XSSFWorkbook(fileIS)
-  private val swb = new SXSSFWorkbook(wb, 100)
   private val sheet0 = wb.getSheetAt(0)
   private val sheetList: List[Sheet] = createSheetList
   private val lmadList: Set[Integer] = createLmadList
+  private var progress = 1
 
 
   def process = sheetList.map(processSheet(_, filePath + "_RESULTADOS.txt"))
 
   private def processSheet(sheet: Sheet, path: String) = {
-    /*garbage collect this nigga*/
+
+    /*garbanzo colleczione*/
+    print(progress + ": " + Runtime.getRuntime.freeMemory/10000)
     Runtime.getRuntime.gc
+    println("\t" + Runtime.getRuntime.freeMemory/10000)
 
     //absolute value function.
     def abs(x:Int): Int = if (x < 0) x * -1 else x
 
     val alumnos = createAlumnoList(sheet)
-    val lmadAlumnos = alumnos.filter((x) => lmadList.contains(x.matricula))
+    val lmadAlumnos = alumnos.filter( (x) => lmadList.contains(x.matricula))
 
     val aprobados = lmadAlumnos.filter(_.aprobo).size //filtra los aprobados, regresa el tamaño.
     val reprobados = abs(lmadAlumnos.size - aprobados) //tamaño real menos aprobados.
 
     insertarArchivoResultados(sheet.getSheetName, aprobados, reprobados, path)
+    progress += 1
   }
 
 
@@ -43,15 +48,15 @@ class CSIExcel(val filePath: String) {
     fw.close
   }
 
-  private def createAlumnoList(sheet: Sheet): List[Alumno] = {
-    var retval: List[Alumno] = List()
-    var iterator = iterateAlumno(sheet, 0)
+  private def createAlumnoList(sheet: Sheet): UnrolledBuffer[Alumno] = {
+    var retval: UnrolledBuffer[Alumno] = UnrolledBuffer()
 
-    retval = iterator.alumno :: retval
+    var iterator = iterateAlumno(sheet, 0)
+    retval += iterator.alumno
 
     while (iterator.nextRowIndex < sheet.getLastRowNum) {
       iterator = iterateAlumno(sheet, iterator.nextRowIndex)
-      retval = iterator.alumno :: retval
+      retval += iterator.alumno
     }
     retval
   }
@@ -72,11 +77,16 @@ class CSIExcel(val filePath: String) {
   /*Construye set de matriculas de lmad*/
   private def createLmadList: Set[Integer] = {
     var retval: Set[Integer] = Set()
+
     for (i <- sheet0.getFirstRowNum to sheet0.getLastRowNum) {
       val row = sheet0.getRow(i)
-      val cell = row.getCell(0)
-      retval += cell.getNumericCellValue.toInt
+
+      if( row != null && row.getCell(0).getCellType == Cell.CELL_TYPE_NUMERIC) {
+        val cell = row.getCell(0)
+        retval += cell.getNumericCellValue.toInt
+      }
     }
+
     retval
   }
 

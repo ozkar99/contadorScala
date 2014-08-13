@@ -1,11 +1,7 @@
  class Alumno {
-
- var matricula:Integer = 0
- var listaMateria: List[Int] = List()
-
+ var matricula:Int = 0
   /*por default el alumno aprueba*/
  var aprobo: Boolean = true
-
 }
 
 
