@@ -13,7 +13,11 @@ object contadorAlumnos extends App {
     filePath = frm.selectedFile.getPath.replace("\\", "\\\\")
   catch {
     case npe: NullPointerException => sys.exit // esperado al presionar cancelar.
-    case e: Exception => e.printStackTrace //no esperado, imprime exception.
+    case e: Exception => {
+      Dialog.showMessage(null, e.getStackTraceString, "Error", Dialog.Message.Error)
+      sys.exit
+    }
+
   }
 
   if (!filePath.endsWith("xlsx")) {
