@@ -72,9 +72,9 @@ class CSIExcel(val filePath: String) {
   /*Construye set de matriculas de lmad*/
   private def createLmadList: Set[Integer] = {
     var retval: Set[Integer] = Set()
-    for (i <- sheet0.getFirstRowNum + 1 to sheet0.getLastRowNum) {
+    for (i <- sheet0.getFirstRowNum to sheet0.getLastRowNum) {
       val row = sheet0.getRow(i)
-      val cell = row.getCell(1)
+      val cell = row.getCell(0)
       retval += cell.getNumericCellValue.toInt
     }
     retval
@@ -103,15 +103,18 @@ class CSIExcel(val filePath: String) {
     rowReturn += 3
 
     var row = sheet.getRow(rowReturn)
-    while ( row != null && row.getCell(1) != null && row.getCell(0).getCellType != Cell.CELL_TYPE_BLANK) {
 
-      /*If we have data read it*/
+    while ( row != null && row.getCell(1) != null && row.getCell(0).getCellType != Cell.CELL_TYPE_BLANK) {
       if (row.getCell(5) != null) {
         val cell = row.getCell(5)
-        if (cell.getCellType == Cell.CELL_TYPE_NUMERIC)
-          retval.alumno.listaMateria = cell.getNumericCellValue.toInt :: retval.alumno.listaMateria
-        else
-          retval.alumno.listaMateria = 0 :: retval.alumno.listaMateria
+
+        if (
+            (cell.getCellType == Cell.CELL_TYPE_NUMERIC && cell.getNumericCellValue < 70) //menor a 70
+            || cell.getCellType == Cell.CELL_TYPE_BLANK  //si esta vacia
+            || cell.getCellType == Cell.CELL_TYPE_STRING ) //si es "NP"
+
+          retval.alumno.aprobo = false;
+
       }
 
       /*increment the while loop*/
