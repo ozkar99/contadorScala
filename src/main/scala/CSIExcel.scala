@@ -19,8 +19,8 @@ class CSIExcel(val filePath: String) {
 
   private def processSheet(sheet: Sheet, path: String) = {
 
-    /*garbanzo colleczione*/
-    print(progress + ": " + Runtime.getRuntime.totalMemory.toString)
+    /*garbanzo colleczione + debug info*/
+    print(progress + " de " + sheetList.size + " -> " + Runtime.getRuntime.totalMemory.toString)
     Runtime.getRuntime.gc
     println("\t" + Runtime.getRuntime.totalMemory.toString)
 
@@ -28,7 +28,7 @@ class CSIExcel(val filePath: String) {
     def abs(x:Int): Int = if (x < 0) x * -1 else x
 
     val alumnos = createAlumnoList(sheet)
-    val lmadAlumnos = alumnos.filter( (x) => lmadList.contains(x.matricula))
+    val lmadAlumnos = alumnos.filter(x=> lmadList.contains(x.matricula))
 
     val aprobados = lmadAlumnos.filter(_.aprobo).size //filtra los aprobados, regresa el tamaño.
     val reprobados = abs(lmadAlumnos.size - aprobados) //tamaño real menos aprobados.
