@@ -14,9 +14,10 @@ class CSIExcel(val filePath: String) {
   private val lmadList: Set[Integer] = createLmadList
   private var progress = 1
 
+  /* metodo de entrada de la clase CSIExcel.*/
+  def process = sheetList.foreach(processSheet(_, filePath + "_RESULTADOS.txt"))
 
-  def process = sheetList.map(processSheet(_, filePath + "_RESULTADOS.txt"))
-
+  /* procesa una sola hoja.*/
   private def processSheet(sheet: Sheet, path: String) = {
 
     /*garbanzo colleczione + debug info*/
@@ -37,7 +38,7 @@ class CSIExcel(val filePath: String) {
     progress += 1
   }
 
-
+  /*Imprime los resultado al archivo especificado (append)*/
   private def insertarArchivoResultados(name: String, aprobados: Int, reprobados: Int, path: String) = {
     val fw : FileWriter = new FileWriter(path, true)
     val formattedText = "\r\n\r\n-----------------------------------------------------------\r\n" +
@@ -48,6 +49,7 @@ class CSIExcel(val filePath: String) {
     fw.close
   }
 
+  /*wrapper para iterateAlumno, regresa una lista de alumnos como unrolledbuffer.*/
   private def createAlumnoList(sheet: Sheet): UnrolledBuffer[Alumno] = {
     var retval: UnrolledBuffer[Alumno] = UnrolledBuffer()
 
@@ -60,9 +62,6 @@ class CSIExcel(val filePath: String) {
     }
     retval
   }
-
-  /*Alumno es lmad*/
-  private def isLMAD(alumno: Integer): Boolean = lmadList.contains(alumno)
 
   /*Crea nuestra lista de hojas para procesar*/
   private def createSheetList: List[Sheet] = {
@@ -99,8 +98,10 @@ class CSIExcel(val filePath: String) {
     sheet.getRow(1).createCell(3).setCellValue(noAprobadosS)
   }
 
+  /* Extrae matricula de string de alumno. */
   private def extractMatricula(str: String): Integer = str.toCharArray.toList.takeWhile((c) => c != ' ').mkString.toInt
 
+   /* Itera los alumnos de cada hoja, empieza en rownum, regresa el objeto alumno y un valor de donde empieza el siguiente alumno*/
   private def iterateAlumno(sheet: Sheet, rowNum: Integer): alumnoNextRow = {
     var rowReturn = rowNum
 
