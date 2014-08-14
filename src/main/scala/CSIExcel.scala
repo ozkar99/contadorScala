@@ -15,20 +15,15 @@ class CSIExcel(val filePath: String) {
   private var progress = 1
 
 
-  def process = sheetList.map(processSheet(_, filePath + "_RESULTADOS.txt"))
+  def process = sheetList.foreach( x=> processSheet(x, filePath + "_RESULTADOS.txt") )
 
   private def processSheet(sheet: Sheet, path: String) = {
-
-    /*garbanzo colleczione*/
-    print(progress + ": " + Runtime.getRuntime.totalMemory.toString)
-    Runtime.getRuntime.gc
-    println("\t" + Runtime.getRuntime.totalMemory.toString)
 
     //absolute value function.
     def abs(x:Int): Int = if (x < 0) x * -1 else x
 
     val alumnos = createAlumnoList(sheet)
-    val lmadAlumnos = alumnos.filter( (x) => lmadList.contains(x.matricula))
+    val lmadAlumnos = alumnos.filter( x=> lmadList.contains(x.matricula))
 
     val aprobados = lmadAlumnos.filter(_.aprobo).size //filtra los aprobados, regresa el tamaño.
     val reprobados = abs(lmadAlumnos.size - aprobados) //tamaño real menos aprobados.
@@ -38,6 +33,7 @@ class CSIExcel(val filePath: String) {
   }
 
 
+  /*imprime resultado en archivo de texto*/
   private def insertarArchivoResultados(name: String, aprobados: Int, reprobados: Int, path: String) = {
     val fw : FileWriter = new FileWriter(path, true)
     val formattedText = "\r\n\r\n-----------------------------------------------------------\r\n" +
@@ -48,6 +44,7 @@ class CSIExcel(val filePath: String) {
     fw.close
   }
 
+  /*crea la lista de alumnos*/
   private def createAlumnoList(sheet: Sheet): UnrolledBuffer[Alumno] = {
     var retval: UnrolledBuffer[Alumno] = UnrolledBuffer()
 
@@ -60,9 +57,6 @@ class CSIExcel(val filePath: String) {
     }
     retval
   }
-
-  /*Alumno es lmad*/
-  private def isLMAD(alumno: Integer): Boolean = lmadList.contains(alumno)
 
   /*Crea nuestra lista de hojas para procesar*/
   private def createSheetList: List[Sheet] = {
@@ -90,17 +84,10 @@ class CSIExcel(val filePath: String) {
     retval
   }
 
-  /*Inserta cantidad de alumnos aprobados y inaprobados en la pagina*/
-  private def insertAlumniGrades(sheet: Sheet, aprobados: Integer, noAprobados: Integer) = {
-    val aprobadosS = "# Alumnos Aprobados: " + aprobados.toString
-    val noAprobadosS = "# Alumnos NO Aprobados: " + noAprobados.toString
-
-    sheet.getRow(0).createCell(3).setCellValue(aprobadosS)
-    sheet.getRow(1).createCell(3).setCellValue(noAprobadosS)
-  }
-
+  /*Extrae la matricula del nombre del alumno*/
   private def extractMatricula(str: String): Integer = str.toCharArray.toList.takeWhile((c) => c != ' ').mkString.toInt
 
+  /*Itera alumno, regresa el alumno y el numero de fila del siguiente alumno*/
   private def iterateAlumno(sheet: Sheet, rowNum: Integer): alumnoNextRow = {
     var rowReturn = rowNum
 

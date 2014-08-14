@@ -21,8 +21,6 @@ object contadorAlumnos extends App {
   }
 
   try{
-    println("Memoria Maxima de uso: " + Runtime.getRuntime.maxMemory)
-
     val csiExcel = new CSIExcel(filePath)
     println("Memoria uso actual: " + Runtime.getRuntime.totalMemory)
 
