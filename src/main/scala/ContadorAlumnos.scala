@@ -4,7 +4,7 @@ import javax.swing.filechooser.FileNameExtensionFilter
 object contadorAlumnos extends App {
 
   val frm = new FileChooser
-  frm.fileFilter = new FileNameExtensionFilter("Archivo Excel", "xlsx")
+  frm.fileFilter = new FileNameExtensionFilter("Archivo Excel", "xls", "xlsx")
   frm.showDialog(null, "Seleccione Archivo")
 
   var filePath = ""
@@ -15,15 +15,8 @@ object contadorAlumnos extends App {
       case e: Exception => sys.exit // esperado al presionar cancelar.
   }
 
-  if (!filePath.endsWith("xlsx")) {
-    Dialog.showMessage(null, "Archivo no valido.", "Error", Dialog.Message.Error)
-    sys.exit
-  }
-
   try{
     val csiExcel = new CSIExcel(filePath)
-    println("Memoria uso actual: " + Runtime.getRuntime.totalMemory)
-
     csiExcel.process
     Dialog.showMessage(null, "Procesamiento Terminado.", "Fin", Dialog.Message.Info)
   }catch {

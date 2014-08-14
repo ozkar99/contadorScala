@@ -1,14 +1,16 @@
 import java.io.{FileWriter, File, FileInputStream}
-import org.apache.poi.ss.usermodel.{Sheet, Cell}
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.apache.poi.ss.usermodel.{WorkbookFactory, Sheet, Cell, Workbook}
+import org.apache.poi.hssf.usermodel._
+import org.apache.poi.xssf.usermodel._
 
 import scala.collection.mutable.UnrolledBuffer
 
 
 class CSIExcel(val filePath: String) {
 
+
   private val fileIS = new FileInputStream(new File(filePath))
-  private val wb = new XSSFWorkbook(fileIS)
+  private val wb = WorkbookFactory.create(fileIS)
   private val sheet0 = wb.getSheetAt(0)
   private val sheetList: List[Sheet] = createSheetList
   private val lmadList: Set[Integer] = createLmadList
