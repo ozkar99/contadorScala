@@ -1,7 +1,5 @@
 import java.io.{FileWriter, File, FileInputStream}
-import org.apache.poi.ss.usermodel.{WorkbookFactory, Sheet, Cell, Workbook}
-import org.apache.poi.hssf.usermodel._
-import org.apache.poi.xssf.usermodel._
+import org.apache.poi.ss.usermodel.{WorkbookFactory, Sheet, Cell}
 
 import scala.collection.mutable.UnrolledBuffer
 
